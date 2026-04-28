@@ -542,27 +542,6 @@
 
         let vehicles = [];
         
-        // Función ÚNICA para calcular deuda acumulada de diarios
-        function getAccumulatedDebt(vehicle) {
-            if (vehicle.type !== 'diario') return vehicle.price;
-            
-            const entryParts = vehicle.entryTime.split(':');
-            const entryHour = parseInt(entryParts[0]);
-            const entryMinute = parseInt(entryParts[1]);
-            
-            const now = new Date();
-            const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
-            
-            // Si entró antes de las 11:30 PM y ya pasaron las 11:30 PM hoy
-            if ((entryHour < 23 || (entryHour === 23 && entryMinute < 30)) &&
-                (currentHour > 23 || (currentHour === 23 && currentMinute >= 30))) {
-                return vehicle.price * 2; // S/ 10
-            }
-            
-            return vehicle.price;
-        }
-        
         // Función para sincronizar con Google Sheets
         function syncToSheets(vehicleData) {
             fetch(GOOGLE_SCRIPT_URL, {
@@ -784,21 +763,6 @@
             document.getElementById('reportMensuales').textContent = stats.mensuales;
             document.getElementById('reportPaid').textContent = stats.paid + ' vehículos';
             document.getElementById('reportUnpaid').textContent = stats.unpaid + ' vehículos';
-
-            // Calcular deuda acumulada de diarios sin pagar que están adentro
-            const pendingDailyDebt = staying
-                .filter(v => v.type === 'diario' && !v.paid)
-                .reduce((sum, v) => sum + getAccumulatedDebt(v), 0);
-            
-            if (pendingDailyDebt > 0) {
-                const debtElement = document.createElement('div');
-                debtElement.style.cssText = 'background: #fff9c4; border-left: 4px solid #fbc02d; padding: 12px; border-radius: 4px; margin-top: 16px;';
-                debtElement.innerHTML = `
-                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #f57f17; font-weight: 600;">DEUDA ACUMULADA (Diarios)</p>
-                    <p style="margin: 0; font-size: 18px; font-weight: 600; color: #f57f17;">S/ ${pendingDailyDebt.toFixed(2)}</p>
-                `;
-                document.getElementById('reportModal').querySelector('.modal-content').appendChild(debtElement);
-            }
 
             document.getElementById('reportModal').classList.add('show');
         }
