@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control de Estacionamiento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        header .subtitle {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .occupancy {
+            text-align: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .occupancy p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .occupancy-number {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .occupancy-bar {
+            width: 120px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .occupancy-fill {
+            height: 100%;
+            background: #4caf50;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #378add;
+            box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.1);
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-info {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #0b7dda;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-box {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .vehicle-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .vehicle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .vehicle-item.exited {
+            border-left-color: #4caf50;
+        }
+
+        .vehicle-item.pending {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+
+        .vehicle-item.paid {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .vehicle-info {
+            flex: 1;
+        }
+
+        .vehicle-plate {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .vehicle-detail {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .vehicle-price {
+            font-weight: 600;
+            margin-right: 12px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .vehicle-status {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .status-pending {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-paid {
+            background: #4caf50;
+            color: white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .modal-stat {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .modal-stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .modal-stat-value {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .search-box {
+            width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .occupancy {
+                margin-top: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Sistema de Estacionamiento</h1>
+                <p class="subtitle" id="headerDate">2026-04-07 | Operador: Susy</p>
+            </div>
+            <div class="occupancy">
+                <p>Ocupación</p>
+                <div class="occupancy-number" id="occupancyNumber">32/50</div>
+                <div class="occupancy-bar">
+                    <div class="occupancy-fill" id="occupancyFill" style="width: 64%;"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Formulario de Entrada -->
+            <div class="card">
+                <h2>Registrar Entrada</h2>
+                <form id="entryForm">
+                    <div class="form-group">
+                        <label>Placa del Auto</label>
+                        <input type="text" id="plate" placeholder="Ej: ABC-1234" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Tarifa</label>
+                        <select id="parkingType" required>
+                            <option value="diario">Diario</option>
+                            <option value="semanal">Semanal</option>
+                            <option value="mensual">Mensual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio</label>
+                        <input type="number" id="price" value="5" step="0.50" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Registrar Entrada</button>
+                </form>
+            </div>
+
+            <!-- Panel de Control -->
+            <div class="card">
+                <h2>Panel de Control</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Adentro</div>
+                        <div class="stat-value" style="color: #4caf50;" id="statInside">32</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Salidas</div>
+                        <div class="stat-value" style="color: #2196f3;" id="statDeparted">18</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Operador</label>
+                    <select id="operator">
+                        <option value="Susy">Susy</option>
+                        <option value="Frank">Frank</option>
+                        <option value="Operador Domingo">Operador Domingo</option>
+                    </select>
+                </div>
+                <button class="btn-info" onclick="showDailyReport()" style="margin-top: 8px; width: 100%;">Ver Reporte del Día</button>
+            </div>
+        </div>
+
+        <!-- Vehículos Dentro -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="list-header">
+                <h2>Vehículos Dentro (<span id="countInside">32</span>)</h2>
+                <input type="text" class="search-box" id="searchPlate" placeholder="Buscar por placa...">
+            </div>
+            <div class="vehicle-list" id="insideList">
+                <div class="empty-state">No hay vehículos adentro</div>
+            </div>
+        </div>
+
+        <!-- Vehículos que Salieron -->
+        <div class="card">
+            <h2>Vehículos que Salieron (<span id="countDeparted">18</span>)</h2>
+            <div class="vehicle-list" id="departedList">
+                <div class="empty-state">No hay salidas registradas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reporte -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Reporte Diario</h2>
+                <p style="margin: 8px 0 0 0; color: #666; font-size: 14px;" id="reportDate">2026-04-07</p>
+            </div>
+
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Total Entradas</div>
+                    <div class="modal-stat-value" id="reportEntries">32</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Salidas</div>
+                    <div class="modal-stat-value" id="reportDepartures">28</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Adentro</div>
+                    <div class="modal-stat-value" style="color: #4caf50;" id="reportStaying">4</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Ingresos</div>
+                    <div class="modal-stat-value" style="color: #4caf50;" id="reportRevenue">S/ 1,185</div>
+                </div>
+            </div>
+
+            <div style="background: #f9f9f9; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+                <h3 style="margin-top: 0; font-size: 14px; margin-bottom: 12px;">Por Tipo de Tarifa</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 13px;">
+                    <div>
+                        <p style="color: #666; margin-bottom: 4px;">Diarios</p>
+                        <p style="margin: 0; font-weight: 600;" id="reportDiarios">15</p>
+                    </div>
+                    <div>
+                        <p style="color: #666; margin-bottom: 4px;">Semanales</p>
+                        <p style="margin: 0; font-weight: 600;" id="reportSemanales">8</p>
+                    </div>
+                    <div>
+                        <p style="color: #666; margin-bottom: 4px;">Mensuales</p>
+                        <p style="margin: 0; font-weight: 600;" id="reportMensuales">9</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px; border-radius: 4px; margin-bottom: 12px;">
+                <p style="margin: 0 0 4px 0; font-size: 12px; color: #2e7d32;">Pagados</p>
+                <p style="margin: 0; font-weight: 600; color: #2e7d32;" id="reportPaid">27 vehículos</p>
+            </div>
+
+            <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 12px; border-radius: 4px; margin-bottom: 24px;">
+                <p style="margin: 0 0 4px 0; font-size: 12px; color: #e65100;">Pendientes</p>
+                <p style="margin: 0; font-weight: 600; color: #e65100;" id="reportUnpaid">1 vehículo</p>
+            </div>
+
+            <button class="btn-info" onclick="closeReportModal()" style="width: 100%;">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        const MAX_CAPACITY = 50;
+        const defaultPrices = {
+            diario: 5,
+            semanal: 25,
+            mensual: 100
+        };
+
+        let vehicles = [];
+
+        // Cargar datos del localStorage
+        function loadData() {
+            const saved = localStorage.getItem('parkingData');
+            if (saved) {
+                vehicles = JSON.parse(saved);
+            }
+        }
+
+        // Guardar datos
+        function saveData() {
+            localStorage.setItem('parkingData', JSON.stringify(vehicles));
+        }
+
+        // Actualizar UI
+        function updateUI() {
+            const currentVehicles = vehicles.filter(v => !v.exitTime);
+            const departedVehicles = vehicles.filter(v => v.exitTime);
+
+            // Actualizar ocupación
+            const occupancyPercent = Math.round((currentVehicles.length / MAX_CAPACITY) * 100);
+            document.getElementById('occupancyNumber').textContent = `${currentVehicles.length}/${MAX_CAPACITY}`;
+            document.getElementById('occupancyFill').style.width = occupancyPercent + '%';
+
+            if (occupancyPercent > 90) {
+                document.getElementById('occupancyFill').style.background = '#f44336';
+            } else if (occupancyPercent > 70) {
+                document.getElementById('occupancyFill').style.background = '#ff9800';
+            } else {
+                document.getElementById('occupancyFill').style.background = '#4caf50';
+            }
+
+            document.getElementById('statInside').textContent = currentVehicles.length;
+            document.getElementById('statDeparted').textContent = departedVehicles.length;
+            document.getElementById('countInside').textContent = currentVehicles.length;
+            document.getElementById('countDeparted').textContent = departedVehicles.length;
+
+            // Actualizar lista de dentro
+            const insideList = document.getElementById('insideList');
+            if (currentVehicles.length === 0) {
+                insideList.innerHTML = '<div class="empty-state">No hay vehículos adentro</div>';
+            } else {
+                insideList.innerHTML = currentVehicles.map(v => `
+                    <div class="vehicle-item">
+                        <div class="vehicle-info">
+                            <div class="vehicle-plate">${v.plate}</div>
+                            <div class="vehicle-detail">${v.type.toUpperCase()} • ${v.entryTime}</div>
+                        </div>
+                        <div class="vehicle-price">S/ ${v.price.toFixed(2)}</div>
+                        <button class="btn-danger" onclick="recordExit(${v.id})">Salida</button>
+                    </div>
+                `).join('');
+            }
+
+            // Actualizar lista de salidas
+            const departedList = document.getElementById('departedList');
+            if (departedVehicles.length === 0) {
+                departedList.innerHTML = '<div class="empty-state">No hay salidas registradas</div>';
+            } else {
+                departedList.innerHTML = departedVehicles.map(v => `
+                    <div class="vehicle-item ${v.paid ? 'paid' : 'pending'}">
+                        <div class="vehicle-info">
+                            <div class="vehicle-plate">${v.plate}</div>
+                            <div class="vehicle-detail">${v.entryTime} → ${v.exitTime}</div>
+                        </div>
+                        <div class="vehicle-price">S/ ${v.price.toFixed(2)}</div>
+                        <span class="vehicle-status ${v.paid ? 'status-paid' : 'status-pending'}">
+                            ${v.paid ? 'PAGADO' : 'PENDIENTE'}
+                        </span>
+                        ${!v.paid ? `<button class="btn-success" onclick="recordPayment(${v.id})">Pagar</button>` : ''}
+                        <button class="btn-danger" onclick="deleteVehicle(${v.id})">Eliminar</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Registrar entrada
+        document.getElementById('entryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const plate = document.getElementById('plate').value.toUpperCase();
+            const parkingType = document.getElementById('parkingType').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const operator = document.getElementById('operator').value;
+
+            if (!plate.trim()) {
+                alert('Por favor ingresa la placa');
+                return;
+            }
+
+            if (vehicles.filter(v => !v.exitTime).length >= MAX_CAPACITY) {
+                alert(`Capacidad máxima alcanzada (${MAX_CAPACITY} autos)`);
+                return;
+            }
+
+            vehicles.push({
+                id: Date.now(),
+                plate: plate,
+                type: parkingType,
+                entryTime: new Date().toLocaleTimeString('es-ES'),
+                exitTime: null,
+                price: price,
+                paid: false,
+                operator: operator
+            });
+
+            saveData();
+            updateUI();
+            document.getElementById('entryForm').reset();
+            document.getElementById('price').value = '5';
+        });
+
+        // Cambiar tipo de tarifa
+        document.getElementById('parkingType').addEventListener('change', function() {
+            document.getElementById('price').value = defaultPrices[this.value];
+        });
+
+        // Registrar salida
+        function recordExit(id) {
+            const vehicle = vehicles.find(v => v.id === id);
+            if (vehicle) {
+                vehicle.exitTime = new Date().toLocaleTimeString('es-ES');
+                saveData();
+                updateUI();
+            }
+        }
+
+        // Registrar pago
+        function recordPayment(id) {
+            const vehicle = vehicles.find(v => v.id === id);
+            if (vehicle) {
+                vehicle.paid = true;
+                saveData();
+                updateUI();
+            }
+        }
+
+        // Eliminar vehículo
+        function deleteVehicle(id) {
+            if (confirm('¿Eliminar este registro?')) {
+                vehicles = vehicles.filter(v => v.id !== id);
+                saveData();
+                updateUI();
+            }
+        }
+
+        // Mostrar reporte diario
+        function showDailyReport() {
+            const dailyVehicles = vehicles;
+            const departed = dailyVehicles.filter(v => v.exitTime);
+            const staying = dailyVehicles.filter(v => !v.exitTime);
+
+            const stats = {
+                entries: dailyVehicles.length,
+                departures: departed.length,
+                staying: staying.length,
+                paid: departed.filter(v => v.paid).length,
+                unpaid: departed.filter(v => !v.paid).length,
+                revenue: departed.filter(v => v.paid).reduce((sum, v) => sum + v.price, 0),
+                diarios: dailyVehicles.filter(v => v.type === 'diario').length,
+                semanales: dailyVehicles.filter(v => v.type === 'semanal').length,
+                mensuales: dailyVehicles.filter(v => v.type === 'mensual').length
+            };
+
+            document.getElementById('reportEntries').textContent = stats.entries;
+            document.getElementById('reportDepartures').textContent = stats.departures;
+            document.getElementById('reportStaying').textContent = stats.staying;
+            document.getElementById('reportRevenue').textContent = 'S/ ' + stats.revenue.toFixed(2);
+            document.getElementById('reportDiarios').textContent = stats.diarios;
+            document.getElementById('reportSemanales').textContent = stats.semanales;
+            document.getElementById('reportMensuales').textContent = stats.mensuales;
+            document.getElementById('reportPaid').textContent = stats.paid + ' vehículos';
+            document.getElementById('reportUnpaid').textContent = stats.unpaid + ' vehículos';
+
+            document.getElementById('reportModal').classList.add('show');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('show');
+        }
+
+        // Actualizar operador
+        document.getElementById('operator').addEventListener('change', function() {
+            document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-ES') + ' | Operador: ' + this.value;
+        });
+
+        // Buscar por placa
+        document.getElementById('searchPlate').addEventListener('input', function() {
+            const search = this.value.toUpperCase();
+            const items = document.querySelectorAll('.vehicle-item');
+            items.forEach(item => {
+                const plate = item.querySelector('.vehicle-plate').textContent;
+                item.style.display = plate.includes(search) ? '' : 'none';
+            });
+        });
+
+        // Inicializar
+        loadData();
+        updateUI();
+    </script>
+</body>
+</html>
