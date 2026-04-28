@@ -542,14 +542,10 @@
 
         let vehicles = [];
         
-        // Calcular deuda acumulada para diarios (por cada 24 horas después de 11:30 PM)
-        function getAccumulatedPrice(vehicle) {
+        // Función ÚNICA para calcular deuda acumulada de diarios
+        function getAccumulatedDebt(vehicle) {
             if (vehicle.type !== 'diario') return vehicle.price;
             
-            // Si ya salió, devuelve el precio original
-            if (vehicle.exitTime) return vehicle.price;
-            
-            // Si sigue adentro, calcula si pasó las 11:30 PM
             const entryParts = vehicle.entryTime.split(':');
             const entryHour = parseInt(entryParts[0]);
             const entryMinute = parseInt(entryParts[1]);
@@ -561,18 +557,11 @@
             // Si entró antes de las 11:30 PM y ya pasaron las 11:30 PM hoy
             if ((entryHour < 23 || (entryHour === 23 && entryMinute < 30)) &&
                 (currentHour > 23 || (currentHour === 23 && currentMinute >= 30))) {
-                return vehicle.price * 2; // Se acumula: S/ 10
+                return vehicle.price * 2; // S/ 10
             }
             
             return vehicle.price;
         }
-        
-        // Calcular deuda acumulada para mensuales
-        function getMonthlyDebt(vehicle) {
-            if (vehicle.type !== 'mensual') return 0;
-            return vehicle.price; // Deuda pendiente si no pagó
-        }
-        
         
         // Función para sincronizar con Google Sheets
         function syncToSheets(vehicleData) {
@@ -773,19 +762,6 @@
             const dailyVehicles = vehicles;
             const departed = dailyVehicles.filter(v => v.exitTime);
             const staying = dailyVehicles.filter(v => !v.exitTime);
-            const pendingUnpaid = staying.filter(v => !v.paid);
-
-            // Calcular deuda acumulada de diarios adentro
-            const debtDiarios = pendingUnpaid
-                .filter(v => v.type === 'diario')
-                .reduce((sum, v) => sum + getAccumulatedPrice(v), 0);
-
-            // Calcular deuda de mensuales sin pagar
-            const debtMensuales = pendingUnpaid
-                .filter(v => v.type === 'mensual')
-                .reduce((sum, v) => sum + getMonthlyDebt(v), 0);
-
-            const totalDebt = debtDiarios + debtMensuales;
 
             const stats = {
                 entries: dailyVehicles.length,
@@ -796,10 +772,7 @@
                 revenue: departed.filter(v => v.paid).reduce((sum, v) => sum + v.price, 0),
                 diarios: dailyVehicles.filter(v => v.type === 'diario').length,
                 semanales: dailyVehicles.filter(v => v.type === 'semanal').length,
-                mensuales: dailyVehicles.filter(v => v.type === 'mensual').length,
-                totalDebt: totalDebt,
-                debtDiarios: debtDiarios,
-                debtMensuales: debtMensuales
+                mensuales: dailyVehicles.filter(v => v.type === 'mensual').length
             };
 
             document.getElementById('reportEntries').textContent = stats.entries;
@@ -811,27 +784,20 @@
             document.getElementById('reportMensuales').textContent = stats.mensuales;
             document.getElementById('reportPaid').textContent = stats.paid + ' vehículos';
             document.getElementById('reportUnpaid').textContent = stats.unpaid + ' vehículos';
+
+            // Calcular deuda acumulada de diarios sin pagar que están adentro
+            const pendingDailyDebt = staying
+                .filter(v => v.type === 'diario' && !v.paid)
+                .reduce((sum, v) => sum + getAccumulatedDebt(v), 0);
             
-            // Mostrar deudas acumuladas si existen
-            let debtHTML = '';
-            if (stats.totalDebt > 0) {
-                debtHTML = `
-                    <div style="background: #fff9c4; border-left: 4px solid #fbc02d; padding: 12px; border-radius: 4px; margin-top: 16px;">
-                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #f57f17; font-weight: 600;">DEUDA ACUMULADA</p>
-                        ${stats.debtDiarios > 0 ? `<p style="margin: 0 0 4px 0; font-size: 13px; color: #f57f17;">Diarios: S/ ${stats.debtDiarios.toFixed(2)}</p>` : ''}
-                        ${stats.debtMensuales > 0 ? `<p style="margin: 0 0 4px 0; font-size: 13px; color: #f57f17;">Mensuales: S/ ${stats.debtMensuales.toFixed(2)}</p>` : ''}
-                        <p style="margin: 0; font-size: 14px; font-weight: 600; color: #f57f17;">Total: S/ ${stats.totalDebt.toFixed(2)}</p>
-                    </div>
+            if (pendingDailyDebt > 0) {
+                const debtElement = document.createElement('div');
+                debtElement.style.cssText = 'background: #fff9c4; border-left: 4px solid #fbc02d; padding: 12px; border-radius: 4px; margin-top: 16px;';
+                debtElement.innerHTML = `
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #f57f17; font-weight: 600;">DEUDA ACUMULADA (Diarios)</p>
+                    <p style="margin: 0; font-size: 18px; font-weight: 600; color: #f57f17;">S/ ${pendingDailyDebt.toFixed(2)}</p>
                 `;
-            }
-            
-            const reportContent = document.getElementById('reportModal');
-            const existingDebt = reportContent.querySelector('[style*="fff9c4"]');
-            if (existingDebt) existingDebt.remove();
-            
-            if (debtHTML) {
-                const lastDiv = reportContent.querySelector('.modal-content').lastElementChild;
-                lastDiv.insertAdjacentHTML('beforeend', debtHTML);
+                document.getElementById('reportModal').querySelector('.modal-content').appendChild(debtElement);
             }
 
             document.getElementById('reportModal').classList.add('show');
