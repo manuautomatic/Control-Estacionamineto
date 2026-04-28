@@ -808,6 +808,9 @@
         // Inicializar
         loadData();
         updateUI();
+        
+        // Sincronizar con Google Sheets cada 10 segundos
+        setInterval(loadFromGoogleSheets, 10000);
     </script>
 </body>
 </html>
