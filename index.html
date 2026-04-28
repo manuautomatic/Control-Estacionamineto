@@ -45,27 +45,6 @@
             color: #666;
         }
 
-        .sync-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .sync-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4caf50;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
         .occupancy {
             text-align: center;
             background: white;
@@ -303,27 +282,6 @@
             flex: 1;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        .search-box {
-            width: 200px;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -388,6 +346,27 @@
             font-weight: 600;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .search-box {
+            width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
         @media (max-width: 768px) {
             .main-grid {
                 grid-template-columns: 1fr;
@@ -410,19 +389,13 @@
         <header>
             <div>
                 <h1>Sistema de Estacionamiento</h1>
-                <p class="subtitle" id="headerDate">Hoy | Operador: Susy</p>
+                <p class="subtitle" id="headerDate">2026-04-07 | Operador: Susy</p>
             </div>
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <div class="sync-indicator">
-                    <div class="sync-dot"></div>
-                    <span id="syncStatus">Sincronizando...</span>
-                </div>
-                <div class="occupancy">
-                    <p>Ocupación</p>
-                    <div class="occupancy-number" id="occupancyNumber">0/50</div>
-                    <div class="occupancy-bar">
-                        <div class="occupancy-fill" id="occupancyFill" style="width: 0%;"></div>
-                    </div>
+            <div class="occupancy">
+                <p>Ocupación</p>
+                <div class="occupancy-number" id="occupancyNumber">32/50</div>
+                <div class="occupancy-bar">
+                    <div class="occupancy-fill" id="occupancyFill" style="width: 64%;"></div>
                 </div>
             </div>
         </header>
@@ -458,11 +431,11 @@
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-label">Adentro</div>
-                        <div class="stat-value" style="color: #4caf50;" id="statInside">0</div>
+                        <div class="stat-value" style="color: #4caf50;" id="statInside">32</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">Salidas</div>
-                        <div class="stat-value" style="color: #2196f3;" id="statDeparted">0</div>
+                        <div class="stat-value" style="color: #2196f3;" id="statDeparted">18</div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -480,41 +453,19 @@
         <!-- Vehículos Dentro -->
         <div class="card" style="margin-bottom: 24px;">
             <div class="list-header">
-                <h2>Vehículos Dentro (<span id="countInside">0</span>)</h2>
+                <h2>Vehículos Dentro (<span id="countInside">32</span>)</h2>
                 <input type="text" class="search-box" id="searchPlate" placeholder="Buscar por placa...">
             </div>
             <div class="vehicle-list" id="insideList">
-                <div class="empty-state">Cargando datos...</div>
+                <div class="empty-state">No hay vehículos adentro</div>
             </div>
         </div>
 
-        <!-- Pendientes de Pago - Adentro -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="list-header">
-                <h2 style="color: #f44336;">⚠️ Pendientes Adentro (<span id="countPendingInside">0</span>)</h2>
-                <span style="font-size: 12px; color: #f44336; font-weight: 600;">Diarios con 24+ horas sin pagar</span>
-            </div>
-            <div class="vehicle-list" id="pendingInsideList">
-                <div class="empty-state">No hay vehículos adentro pendientes</div>
-            </div>
-        </div>
-
-        <!-- Pendientes de Pago - Salieron -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="list-header">
-                <h2>Pendientes de Pago - Salieron (<span id="countPendingDeparted">0</span>)</h2>
-                <input type="text" class="search-box" id="searchPlate" placeholder="Buscar por placa...">
-            </div>
-            <div class="vehicle-list" id="pendingDepartedList">
-                <div class="empty-state">No hay vehículos pendientes</div>
-            </div>
-        </div>
-
-        <!-- Vehículos Pagados -->
+        <!-- Vehículos que Salieron -->
         <div class="card">
-            <h2>Vehículos Pagados (<span id="countPaid">0</span>)</h2>
-            <div class="vehicle-list" id="paidList">
-                <div class="empty-state">No hay vehículos pagados</div>
+            <h2>Vehículos que Salieron (<span id="countDeparted">18</span>)</h2>
+            <div class="vehicle-list" id="departedList">
+                <div class="empty-state">No hay salidas registradas</div>
             </div>
         </div>
     </div>
@@ -524,25 +475,25 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Reporte Diario</h2>
-                <p style="margin: 8px 0 0 0; color: #666; font-size: 14px;" id="reportDate">Hoy</p>
+                <p style="margin: 8px 0 0 0; color: #666; font-size: 14px;" id="reportDate">2026-04-07</p>
             </div>
 
             <div class="modal-stats">
                 <div class="modal-stat">
                     <div class="modal-stat-label">Total Entradas</div>
-                    <div class="modal-stat-value" id="reportEntries">0</div>
+                    <div class="modal-stat-value" id="reportEntries">32</div>
                 </div>
                 <div class="modal-stat">
                     <div class="modal-stat-label">Salidas</div>
-                    <div class="modal-stat-value" id="reportDepartures">0</div>
+                    <div class="modal-stat-value" id="reportDepartures">28</div>
                 </div>
                 <div class="modal-stat">
                     <div class="modal-stat-label">Adentro</div>
-                    <div class="modal-stat-value" style="color: #4caf50;" id="reportStaying">0</div>
+                    <div class="modal-stat-value" style="color: #4caf50;" id="reportStaying">4</div>
                 </div>
                 <div class="modal-stat">
                     <div class="modal-stat-label">Ingresos</div>
-                    <div class="modal-stat-value" style="color: #4caf50;" id="reportRevenue">S/ 0</div>
+                    <div class="modal-stat-value" style="color: #4caf50;" id="reportRevenue">S/ 1,185</div>
                 </div>
             </div>
 
@@ -551,34 +502,27 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; font-size: 13px;">
                     <div>
                         <p style="color: #666; margin-bottom: 4px;">Diarios</p>
-                        <p style="margin: 0; font-weight: 600;" id="reportDiarios">0</p>
+                        <p style="margin: 0; font-weight: 600;" id="reportDiarios">15</p>
                     </div>
                     <div>
                         <p style="color: #666; margin-bottom: 4px;">Semanales</p>
-                        <p style="margin: 0; font-weight: 600;" id="reportSemanales">0</p>
+                        <p style="margin: 0; font-weight: 600;" id="reportSemanales">8</p>
                     </div>
                     <div>
                         <p style="color: #666; margin-bottom: 4px;">Mensuales</p>
-                        <p style="margin: 0; font-weight: 600;" id="reportMensuales">0</p>
+                        <p style="margin: 0; font-weight: 600;" id="reportMensuales">9</p>
                     </div>
                 </div>
             </div>
 
-            <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px; border-radius: 4px; margin-bottom: 24px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; color: #2e7d32;">Pagados Hoy</p>
-                <p style="margin: 0; font-weight: 600; color: #2e7d32;" id="reportPaid">0 vehículos</p>
+            <div style="background: #e8f5e9; border-left: 4px solid #4caf50; padding: 12px; border-radius: 4px; margin-bottom: 12px;">
+                <p style="margin: 0 0 4px 0; font-size: 12px; color: #2e7d32;">Pagados</p>
+                <p style="margin: 0; font-weight: 600; color: #2e7d32;" id="reportPaid">27 vehículos</p>
             </div>
 
-            <div style="background: #ffebee; border-left: 4px solid #f44336; padding: 16px; border-radius: 4px; margin-bottom: 16px;">
-                <h3 style="margin: 0 0 12px 0; font-size: 14px; color: #c62828;">AUTOS PENDIENTES (Sin pagar)</h3>
-                <div id="pendingVehiclesReport" style="font-size: 12px;">
-                    <p style="color: #666; margin: 0;">No hay autos pendientes</p>
-                </div>
-            </div>
-
-            <div style="background: #fff9c4; border-left: 4px solid #fbc02d; padding: 12px; border-radius: 4px; margin-bottom: 24px;">
-                <p style="margin: 0 0 4px 0; font-size: 12px; color: #f57f17;">Total Dinero Adeudado</p>
-                <p style="margin: 0; font-weight: 600; font-size: 18px; color: #f57f17;" id="reportTotalPending">S/ 0.00</p>
+            <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 12px; border-radius: 4px; margin-bottom: 24px;">
+                <p style="margin: 0 0 4px 0; font-size: 12px; color: #e65100;">Pendientes</p>
+                <p style="margin: 0; font-weight: 600; color: #e65100;" id="reportUnpaid">1 vehículo</p>
             </div>
 
             <button class="btn-info" onclick="closeReportModal()" style="width: 100%;">Cerrar</button>
@@ -587,55 +531,57 @@
 
     <script>
         const MAX_CAPACITY = 50;
-        const SHEET_ID = '175PXAW8nbbRDcltZEl9oiMJOX8SjzItGa58UvWPZizY';
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSOELx2u3qAzIXAbqbcbZN5XqF63-GmjMhNvZqdzYEZXToWGyRvN8JwCqj2KcH2PdlXw/exec';
-        
         const defaultPrices = {
             diario: 5,
             semanal: 25,
             mensual: 100
         };
+        
+        // URL de Google Apps Script para sincronización
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSOELx2u3qAzIXAbqbcbZN5XqF63-GmjMhNvZqdzYEZXToWGyRvN8JwCqj2KcH2PdlXw/exec';
 
-        // Calcular deuda acumulada por días (comparando fecha + hora)
-        function calculateAccumulatedDebt(vehicle) {
+        let vehicles = [];
+        
+        // Calcular deuda acumulada para diarios (por cada 24 horas después de 11:30 PM)
+        function getAccumulatedPrice(vehicle) {
             if (vehicle.type !== 'diario') return vehicle.price;
             
-            // Obtener fecha actual
+            // Si ya salió, devuelve el precio original
+            if (vehicle.exitTime) return vehicle.price;
+            
+            // Si sigue adentro, calcula si pasó las 11:30 PM
+            const entryParts = vehicle.entryTime.split(':');
+            const entryHour = parseInt(entryParts[0]);
+            const entryMinute = parseInt(entryParts[1]);
+            
             const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
             
-            // Parsear hora de entrada (formato: HH:MM:SS)
-            const entryTimeParts = vehicle.entryTime.split(':');
-            const entryHour = parseInt(entryTimeParts[0]);
-            const entryMinute = parseInt(entryTimeParts[1]);
-            
-            // Crear fecha de entrada de hoy (asumimos que la entrada es de hoy)
-            const entryDate = new Date();
-            entryDate.setHours(entryHour, entryMinute, 0, 0);
-            
-            // Hora de corte: 23:30 (11:30 PM)
-            const cutoffTime = new Date();
-            cutoffTime.setHours(23, 30, 0, 0);
-            
-            // Contar cuántas veces pasó las 23:30
-            let daysPassed = 0;
-            
-            // Si entró antes de las 23:30
-            if (entryDate < cutoffTime) {
-                // El corte de hoy ya pasó (primera acumulación)
-                daysPassed = 1;
-                
-                // Si ahora ya pasamos las 23:30 de hoy, suma otro día
-                if (now >= cutoffTime) {
-                    daysPassed += 1;
-                }
-            } else {
-                // Entró después de las 23:30, espera al siguiente corte
-                if (now >= cutoffTime) {
-                    daysPassed = 1;
-                }
+            // Si entró antes de las 11:30 PM y ya pasaron las 11:30 PM hoy
+            if ((entryHour < 23 || (entryHour === 23 && entryMinute < 30)) &&
+                (currentHour > 23 || (currentHour === 23 && currentMinute >= 30))) {
+                return vehicle.price * 2; // Se acumula: S/ 10
             }
             
-            return vehicle.price * Math.max(1, daysPassed);
+            return vehicle.price;
+        }
+        
+        // Calcular deuda acumulada para mensuales
+        function getMonthlyDebt(vehicle) {
+            if (vehicle.type !== 'mensual') return 0;
+            return vehicle.price; // Deuda pendiente si no pagó
+        }
+        
+        
+        // Función para sincronizar con Google Sheets
+        function syncToSheets(vehicleData) {
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(vehicleData)
+            })
+            .then(response => console.log('✓ Sincronizado con Google Sheets'))
+            .catch(error => console.error('Error al sincronizar:', error));
         }
 
         // Cargar datos del localStorage
@@ -651,90 +597,10 @@
             localStorage.setItem('parkingData', JSON.stringify(vehicles));
         }
 
-        // Sincronizar con Google Sheets
-        function syncToSheets(vehicleData) {
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(vehicleData)
-            })
-            .then(response => console.log('✓ Sincronizado con Google Sheets'))
-            .catch(error => console.error('Error al sincronizar:', error));
-        }
-
-        // Leer datos de Google Sheets correctamente
-        function loadFromGoogleSheets() {
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
-            
-            fetch(url)
-            .then(response => response.text())
-            .then(data => {
-                sheetVehicles = [];
-                const lines = data.split('\n');
-                
-                // Saltar encabezado (primera línea)
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i].trim()) continue;
-                    
-                    const cells = lines[i].split(',');
-                    if (cells.length < 8) continue;
-                    
-                    const plate = cells[1] ? cells[1].trim().toUpperCase() : null;
-                    if (!plate) continue;
-                    
-                    sheetVehicles.push({
-                        id: i,
-                        date: cells[0] ? cells[0].trim() : '',
-                        plate: plate,
-                        type: cells[2] ? cells[2].trim() : '',
-                        entryTime: cells[3] ? cells[3].trim() : '',
-                        exitTime: cells[4] ? cells[4].trim() : '',
-                        price: cells[5] ? parseFloat(cells[5]) : 0,
-                        paid: cells[6] ? cells[6].trim() === 'SÍ' : false,
-                        operator: cells[7] ? cells[7].trim() : ''
-                    });
-                }
-                
-                updateUI();
-                updateSyncStatus(true);
-            })
-            .catch(error => {
-                console.error('Error loading Google Sheets:', error);
-                updateSyncStatus(false);
-            });
-        }
-
-        function updateSyncStatus(success) {
-            const indicator = document.getElementById('syncStatus');
-            if (success) {
-                indicator.textContent = 'Sincronizado ✓';
-                indicator.style.color = '#4caf50';
-            } else {
-                indicator.textContent = 'Error de sincronización';
-                indicator.style.color = '#f44336';
-            }
-        }
-
-        // Actualizar UI combinando datos locales + Google Sheets
+        // Actualizar UI
         function updateUI() {
-            // Combina datos locales con los de Google Sheets, evitando duplicados
-            const allPlates = new Set();
-            const combinedVehicles = [];
-            
-            // Primero agregar datos locales (tienen prioridad)
-            vehicles.forEach(v => {
-                allPlates.add(v.plate);
-                combinedVehicles.push(v);
-            });
-            
-            // Luego agregar datos de Sheets que no están en local
-            sheetVehicles.forEach(sv => {
-                if (!allPlates.has(sv.plate)) {
-                    combinedVehicles.push(sv);
-                }
-            });
-            
-            const currentVehicles = combinedVehicles.filter(v => !v.exitTime);
-            const departedVehicles = combinedVehicles.filter(v => v.exitTime);
+            const currentVehicles = vehicles.filter(v => !v.exitTime);
+            const departedVehicles = vehicles.filter(v => v.exitTime);
 
             // Actualizar ocupación
             const occupancyPercent = Math.round((currentVehicles.length / MAX_CAPACITY) * 100);
@@ -750,9 +616,9 @@
             }
 
             document.getElementById('statInside').textContent = currentVehicles.length;
-            document.getElementById('statDeparted').textContent = departedVehicles.filter(v => !v.paid).length;
+            document.getElementById('statDeparted').textContent = departedVehicles.length;
             document.getElementById('countInside').textContent = currentVehicles.length;
-            document.getElementById('countPaid').textContent = departedVehicles.filter(v => v.paid).length;
+            document.getElementById('countDeparted').textContent = departedVehicles.length;
 
             // Actualizar lista de dentro
             const insideList = document.getElementById('insideList');
@@ -766,98 +632,28 @@
                             <div class="vehicle-detail">${v.type.toUpperCase()} • ${v.entryTime}</div>
                         </div>
                         <div class="vehicle-price">S/ ${v.price.toFixed(2)}</div>
-                        <button class="btn-danger" onclick="recordExit(${v.id}, '${v.plate}')">Salida</button>
+                        <button class="btn-danger" onclick="recordExit(${v.id})">Salida</button>
                     </div>
                 `).join('');
             }
 
-            // Diarios adentro que llevan más de 24 horas (PENDIENTES ADENTRO)
-            const dailiesOverdue = currentVehicles.filter(v => {
-                if (v.type !== 'diario') return false;
-                
-                const entryTimeParts = v.entryTime.split(':');
-                const entryHour = parseInt(entryTimeParts[0]);
-                const entryMinute = parseInt(entryTimeParts[1]);
-                
-                const entryDate = new Date();
-                entryDate.setHours(entryHour, entryMinute, 0, 0);
-                
-                const cutoffTime = new Date();
-                cutoffTime.setHours(23, 30, 0, 0);
-                
-                const now = new Date();
-                
-                // Si entró antes de las 23:30 y ahora ya pasamos las 23:30, está overdue
-                if (entryDate < cutoffTime && now >= cutoffTime) {
-                    return true;
-                }
-                
-                return false;
-            });
-            
-            document.getElementById('countPendingInside').textContent = dailiesOverdue.length;
-            document.getElementById('countPendingDeparted').textContent = departedVehicles.filter(v => !v.paid).length;
-
-            // Actualizar lista de PENDIENTES ADENTRO
-            const pendingInsideList = document.getElementById('pendingInsideList');
-            
-            if (dailiesOverdue.length === 0) {
-                pendingInsideList.innerHTML = '<div class="empty-state">No hay vehículos adentro pendientes</div>';
+            // Actualizar lista de salidas
+            const departedList = document.getElementById('departedList');
+            if (departedVehicles.length === 0) {
+                departedList.innerHTML = '<div class="empty-state">No hay salidas registradas</div>';
             } else {
-                pendingInsideList.innerHTML = dailiesOverdue.map(v => {
-                    const accumulatedDebt = calculateAccumulatedDebt(v);
-                    return `
-                    <div class="vehicle-item pending" style="background: #ffebee;">
-                        <div class="vehicle-info">
-                            <div class="vehicle-plate" style="color: #f44336;">${v.plate}</div>
-                            <div class="vehicle-detail">Entrada: ${v.entryTime} | SIGUE ADENTRO</div>
-                        </div>
-                        <div class="vehicle-price" style="color: #f44336; font-weight: 700;">S/ ${accumulatedDebt.toFixed(2)}</div>
-                        <span class="vehicle-status" style="background: #f44336;">ADENTRO</span>
-                        <button class="btn-success" onclick="recordPayment(${v.id}, '${v.plate}')">Pagar Adentro</button>
-                    </div>
-                `; }).join('');
-            }
-
-            // Actualizar lista de PENDIENTES SALIERON
-            const pendingDepartedList = document.getElementById('pendingDepartedList');
-            const pendingDeparted = departedVehicles.filter(v => !v.paid);
-            
-            if (pendingDeparted.length === 0) {
-                pendingDepartedList.innerHTML = '<div class="empty-state">No hay vehículos pendientes</div>';
-            } else {
-                pendingDepartedList.innerHTML = pendingDeparted.map(v => {
-                    const accumulatedDebt = calculateAccumulatedDebt(v);
-                    return `
-                    <div class="vehicle-item pending">
-                        <div class="vehicle-info">
-                            <div class="vehicle-plate">${v.plate}</div>
-                            <div class="vehicle-detail">${v.entryTime} → ${v.exitTime} (SALIÓ)</div>
-                        </div>
-                        <div class="vehicle-price">S/ ${accumulatedDebt.toFixed(2)}</div>
-                        <span class="vehicle-status status-pending">PENDIENTE</span>
-                        <button class="btn-success" onclick="recordPayment(${v.id}, '${v.plate}')">Marcar Pagado</button>
-                        <button class="btn-danger" onclick="deleteVehicle(${v.id}, '${v.plate}')">Eliminar</button>
-                    </div>
-                `; }).join('');
-            }
-
-            // Actualizar lista de pagados
-            const paidList = document.getElementById('paidList');
-            const paidVehicles = departedVehicles.filter(v => v.paid);
-            
-            if (paidVehicles.length === 0) {
-                paidList.innerHTML = '<div class="empty-state">No hay vehículos pagados</div>';
-            } else {
-                paidList.innerHTML = paidVehicles.map(v => `
-                    <div class="vehicle-item paid">
+                departedList.innerHTML = departedVehicles.map(v => `
+                    <div class="vehicle-item ${v.paid ? 'paid' : 'pending'}">
                         <div class="vehicle-info">
                             <div class="vehicle-plate">${v.plate}</div>
                             <div class="vehicle-detail">${v.entryTime} → ${v.exitTime}</div>
                         </div>
                         <div class="vehicle-price">S/ ${v.price.toFixed(2)}</div>
-                        <span class="vehicle-status status-paid">PAGADO</span>
-                        <button class="btn-danger" onclick="deleteVehicle(${v.id}, '${v.plate}')">Eliminar</button>
+                        <span class="vehicle-status ${v.paid ? 'status-paid' : 'status-pending'}">
+                            ${v.paid ? 'PAGADO' : 'PENDIENTE'}
+                        </span>
+                        ${!v.paid ? `<button class="btn-success" onclick="recordPayment(${v.id})">Pagar</button>` : ''}
+                        <button class="btn-danger" onclick="deleteVehicle(${v.id})">Eliminar</button>
                     </div>
                 `).join('');
             }
@@ -877,13 +673,12 @@
                 return;
             }
 
-            const currentInside = vehicles.filter(v => !v.exitTime).length;
-            if (currentInside >= MAX_CAPACITY) {
+            if (vehicles.filter(v => !v.exitTime).length >= MAX_CAPACITY) {
                 alert(`Capacidad máxima alcanzada (${MAX_CAPACITY} autos)`);
                 return;
             }
 
-            const newVehicle = {
+            vehicles.push({
                 id: Date.now(),
                 plate: plate,
                 type: parkingType,
@@ -893,10 +688,20 @@
                 paid: false,
                 operator: operator,
                 date: new Date().toLocaleDateString('es-ES')
-            };
+            });
 
-            vehicles.push(newVehicle);
-            syncToSheets(newVehicle);
+            // Sincronizar con Google Sheets
+            syncToSheets({
+                date: new Date().toLocaleDateString('es-ES'),
+                plate: plate,
+                type: parkingType,
+                entryTime: new Date().toLocaleTimeString('es-ES'),
+                exitTime: null,
+                price: price,
+                paid: false,
+                operator: operator
+            });
+
             saveData();
             updateUI();
             document.getElementById('entryForm').reset();
@@ -909,74 +714,55 @@
         });
 
         // Registrar salida
-        function recordExit(id, plate) {
-            // Buscar en datos locales
-            let vehicle = vehicles.find(v => v.id === id);
-            
-            // Si no está en local, buscar en Sheets
-            if (!vehicle && plate) {
-                vehicle = sheetVehicles.find(v => v.plate === plate);
-                if (vehicle) {
-                    // Copiar a datos locales para poder editarlo
-                    const newVehicle = { ...vehicle, id: Date.now() };
-                    newVehicle.exitTime = new Date().toLocaleTimeString('es-ES');
-                    vehicles.push(newVehicle);
-                    syncToSheets(newVehicle);
-                    saveData();
-                    updateUI();
-                    return;
-                }
-            }
-            
-            // Si está en local
+        function recordExit(id) {
+            const vehicle = vehicles.find(v => v.id === id);
             if (vehicle) {
                 vehicle.exitTime = new Date().toLocaleTimeString('es-ES');
-                syncToSheets(vehicle);
+                
+                // Sincronizar con Google Sheets
+                syncToSheets({
+                    date: vehicle.date,
+                    plate: vehicle.plate,
+                    type: vehicle.type,
+                    entryTime: vehicle.entryTime,
+                    exitTime: vehicle.exitTime,
+                    price: vehicle.price,
+                    paid: vehicle.paid,
+                    operator: vehicle.operator
+                });
+                
                 saveData();
                 updateUI();
             }
         }
 
         // Registrar pago
-        function recordPayment(id, plate) {
-            // Buscar en datos locales
-            let vehicle = vehicles.find(v => v.id === id);
-            
-            // Si no está en local, buscar en Sheets
-            if (!vehicle && plate) {
-                vehicle = sheetVehicles.find(v => v.plate === plate);
-                if (vehicle) {
-                    // Copiar a datos locales para poder editarlo
-                    const newVehicle = { ...vehicle, id: Date.now() };
-                    newVehicle.paid = true;
-                    vehicles.push(newVehicle);
-                    syncToSheets(newVehicle);
-                    saveData();
-                    updateUI();
-                    return;
-                }
-            }
-            
-            // Si está en local
+        function recordPayment(id) {
+            const vehicle = vehicles.find(v => v.id === id);
             if (vehicle) {
                 vehicle.paid = true;
-                syncToSheets(vehicle);
+                
+                // Sincronizar con Google Sheets
+                syncToSheets({
+                    date: vehicle.date,
+                    plate: vehicle.plate,
+                    type: vehicle.type,
+                    entryTime: vehicle.entryTime,
+                    exitTime: vehicle.exitTime,
+                    price: vehicle.price,
+                    paid: true,
+                    operator: vehicle.operator
+                });
+                
                 saveData();
                 updateUI();
             }
         }
 
         // Eliminar vehículo
-        function deleteVehicle(id, plate = null) {
+        function deleteVehicle(id) {
             if (confirm('¿Eliminar este registro?')) {
-                // Intentar eliminar de datos locales
                 vehicles = vehicles.filter(v => v.id !== id);
-                
-                // Si viene de Sheets, también lo marcamos
-                if (plate) {
-                    sheetVehicles = sheetVehicles.filter(v => v.plate !== plate);
-                }
-                
                 saveData();
                 updateUI();
             }
@@ -984,41 +770,36 @@
 
         // Mostrar reporte diario
         function showDailyReport() {
-            // Combinar datos locales + Sheets
-            const allPlates = new Set();
-            const combinedVehicles = [];
-            
-            vehicles.forEach(v => {
-                allPlates.add(v.plate);
-                combinedVehicles.push(v);
-            });
-            
-            sheetVehicles.forEach(sv => {
-                if (!allPlates.has(sv.plate)) {
-                    combinedVehicles.push(sv);
-                }
-            });
-            
-            const departed = combinedVehicles.filter(v => v.exitTime);
-            const staying = combinedVehicles.filter(v => !v.exitTime);
+            const dailyVehicles = vehicles;
+            const departed = dailyVehicles.filter(v => v.exitTime);
+            const staying = dailyVehicles.filter(v => !v.exitTime);
             const pendingUnpaid = staying.filter(v => !v.paid);
 
-            const today = new Date();
-            const pendingDetails = pendingUnpaid.map(v => {
-                const accumulatedDebt = calculateAccumulatedDebt(v);
-                return { ...v, accumulatedDebt: accumulatedDebt };
-            });
+            // Calcular deuda acumulada de diarios adentro
+            const debtDiarios = pendingUnpaid
+                .filter(v => v.type === 'diario')
+                .reduce((sum, v) => sum + getAccumulatedPrice(v), 0);
+
+            // Calcular deuda de mensuales sin pagar
+            const debtMensuales = pendingUnpaid
+                .filter(v => v.type === 'mensual')
+                .reduce((sum, v) => sum + getMonthlyDebt(v), 0);
+
+            const totalDebt = debtDiarios + debtMensuales;
 
             const stats = {
-                entries: combinedVehicles.length,
+                entries: dailyVehicles.length,
                 departures: departed.length,
                 staying: staying.length,
                 paid: departed.filter(v => v.paid).length,
+                unpaid: departed.filter(v => !v.paid).length,
                 revenue: departed.filter(v => v.paid).reduce((sum, v) => sum + v.price, 0),
-                diarios: combinedVehicles.filter(v => v.type === 'diario').length,
-                semanales: combinedVehicles.filter(v => v.type === 'semanal').length,
-                mensuales: combinedVehicles.filter(v => v.type === 'mensual').length,
-                totalPending: pendingUnpaid.reduce((sum, v) => sum + calculateAccumulatedDebt(v), 0)
+                diarios: dailyVehicles.filter(v => v.type === 'diario').length,
+                semanales: dailyVehicles.filter(v => v.type === 'semanal').length,
+                mensuales: dailyVehicles.filter(v => v.type === 'mensual').length,
+                totalDebt: totalDebt,
+                debtDiarios: debtDiarios,
+                debtMensuales: debtMensuales
             };
 
             document.getElementById('reportEntries').textContent = stats.entries;
@@ -1029,25 +810,29 @@
             document.getElementById('reportSemanales').textContent = stats.semanales;
             document.getElementById('reportMensuales').textContent = stats.mensuales;
             document.getElementById('reportPaid').textContent = stats.paid + ' vehículos';
-            document.getElementById('reportTotalPending').textContent = 'S/ ' + stats.totalPending.toFixed(2);
-
-            let pendingHTML = '';
-            if (pendingDetails.length === 0) {
-                pendingHTML = '<p style="color: #666; margin: 0;">No hay autos pendientes</p>';
-            } else {
-                pendingHTML = pendingDetails.map(v => `
-                    <div style="margin-bottom: 12px; padding: 10px; background: white; border-radius: 4px; border-left: 3px solid #f44336;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <strong style="color: #c62828;">${v.plate}</strong>
-                        </div>
-                        <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
-                            ${v.type.toUpperCase()} • Entrada: ${v.entryTime}
-                        </div>
-                        <div style="font-weight: 600; color: #f44336;">Deuda: S/ ${v.accumulatedDebt.toFixed(2)}</div>
+            document.getElementById('reportUnpaid').textContent = stats.unpaid + ' vehículos';
+            
+            // Mostrar deudas acumuladas si existen
+            let debtHTML = '';
+            if (stats.totalDebt > 0) {
+                debtHTML = `
+                    <div style="background: #fff9c4; border-left: 4px solid #fbc02d; padding: 12px; border-radius: 4px; margin-top: 16px;">
+                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #f57f17; font-weight: 600;">DEUDA ACUMULADA</p>
+                        ${stats.debtDiarios > 0 ? `<p style="margin: 0 0 4px 0; font-size: 13px; color: #f57f17;">Diarios: S/ ${stats.debtDiarios.toFixed(2)}</p>` : ''}
+                        ${stats.debtMensuales > 0 ? `<p style="margin: 0 0 4px 0; font-size: 13px; color: #f57f17;">Mensuales: S/ ${stats.debtMensuales.toFixed(2)}</p>` : ''}
+                        <p style="margin: 0; font-size: 14px; font-weight: 600; color: #f57f17;">Total: S/ ${stats.totalDebt.toFixed(2)}</p>
                     </div>
-                `).join('');
+                `;
             }
-            document.getElementById('pendingVehiclesReport').innerHTML = pendingHTML;
+            
+            const reportContent = document.getElementById('reportModal');
+            const existingDebt = reportContent.querySelector('[style*="fff9c4"]');
+            if (existingDebt) existingDebt.remove();
+            
+            if (debtHTML) {
+                const lastDiv = reportContent.querySelector('.modal-content').lastElementChild;
+                lastDiv.insertAdjacentHTML('beforeend', debtHTML);
+            }
 
             document.getElementById('reportModal').classList.add('show');
         }
@@ -1058,7 +843,7 @@
 
         // Actualizar operador
         document.getElementById('operator').addEventListener('change', function() {
-            document.getElementById('headerDate').textContent = 'Hoy | Operador: ' + this.value;
+            document.getElementById('headerDate').textContent = new Date().toLocaleDateString('es-ES') + ' | Operador: ' + this.value;
         });
 
         // Buscar por placa
@@ -1073,10 +858,7 @@
 
         // Inicializar
         loadData();
-        loadFromGoogleSheets();
-
-        // Sincronizar cada 10 segundos
-        setInterval(loadFromGoogleSheets, 10000);
+        updateUI();
     </script>
 </body>
 </html>
