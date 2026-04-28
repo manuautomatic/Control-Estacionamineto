@@ -726,7 +726,7 @@
                             ${v.paid ? 'PAGADO' : 'PENDIENTE'}
                         </span>
                         ${!v.paid ? `<button class="btn-success" onclick="recordPayment(${v.id}, '${v.plate}')">Pagar</button>` : ''}
-                        <button class="btn-danger" onclick="deleteVehicle(${v.id})">Eliminar</button>
+                        <button class="btn-danger" onclick="deleteVehicle(${v.id}, '${v.plate}')">Eliminar</button>
                     </div>
                 `).join('');
             }
@@ -779,7 +779,25 @@
 
         // Registrar salida
         function recordExit(id, plate) {
-            const vehicle = vehicles.find(v => v.id === id);
+            // Buscar en datos locales
+            let vehicle = vehicles.find(v => v.id === id);
+            
+            // Si no está en local, buscar en Sheets
+            if (!vehicle && plate) {
+                vehicle = sheetVehicles.find(v => v.plate === plate);
+                if (vehicle) {
+                    // Copiar a datos locales para poder editarlo
+                    const newVehicle = { ...vehicle, id: Date.now() };
+                    newVehicle.exitTime = new Date().toLocaleTimeString('es-ES');
+                    vehicles.push(newVehicle);
+                    syncToSheets(newVehicle);
+                    saveData();
+                    updateUI();
+                    return;
+                }
+            }
+            
+            // Si está en local
             if (vehicle) {
                 vehicle.exitTime = new Date().toLocaleTimeString('es-ES');
                 syncToSheets(vehicle);
@@ -790,7 +808,25 @@
 
         // Registrar pago
         function recordPayment(id, plate) {
-            const vehicle = vehicles.find(v => v.id === id);
+            // Buscar en datos locales
+            let vehicle = vehicles.find(v => v.id === id);
+            
+            // Si no está en local, buscar en Sheets
+            if (!vehicle && plate) {
+                vehicle = sheetVehicles.find(v => v.plate === plate);
+                if (vehicle) {
+                    // Copiar a datos locales para poder editarlo
+                    const newVehicle = { ...vehicle, id: Date.now() };
+                    newVehicle.paid = true;
+                    vehicles.push(newVehicle);
+                    syncToSheets(newVehicle);
+                    saveData();
+                    updateUI();
+                    return;
+                }
+            }
+            
+            // Si está en local
             if (vehicle) {
                 vehicle.paid = true;
                 syncToSheets(vehicle);
@@ -800,9 +836,16 @@
         }
 
         // Eliminar vehículo
-        function deleteVehicle(id) {
+        function deleteVehicle(id, plate = null) {
             if (confirm('¿Eliminar este registro?')) {
+                // Intentar eliminar de datos locales
                 vehicles = vehicles.filter(v => v.id !== id);
+                
+                // Si viene de Sheets, también lo marcamos
+                if (plate) {
+                    sheetVehicles = sheetVehicles.filter(v => v.plate !== plate);
+                }
+                
                 saveData();
                 updateUI();
             }
