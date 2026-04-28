@@ -600,34 +600,36 @@
             .catch(error => console.error('Error al sincronizar:', error));
         }
 
-        // Leer datos de Google Sheets
+        // Leer datos de Google Sheets correctamente
         function loadFromGoogleSheets() {
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
             
             fetch(url)
             .then(response => response.text())
             .then(data => {
-                const json = JSON.parse(data.substring(47).slice(0, -2));
                 sheetVehicles = [];
+                const lines = data.split('\n');
                 
-                if (json.table && json.table.rows) {
-                    json.table.rows.forEach((row, index) => {
-                        if (index === 0) return; // Skip header
-                        
-                        const values = row.c;
-                        if (values && values[1] && values[1].v) { // Check if placa exists
-                            sheetVehicles.push({
-                                id: index,
-                                date: values[0] ? values[0].v : '',
-                                plate: values[1].v.toUpperCase(),
-                                type: values[2] ? values[2].v : '',
-                                entryTime: values[3] ? values[3].v : '',
-                                exitTime: values[4] ? values[4].v : '',
-                                price: values[5] ? parseFloat(values[5].v) : 0,
-                                paid: values[6] ? values[6].v === 'SÍ' : false,
-                                operator: values[7] ? values[7].v : ''
-                            });
-                        }
+                // Saltar encabezado (primera línea)
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const cells = lines[i].split(',');
+                    if (cells.length < 8) continue;
+                    
+                    const plate = cells[1] ? cells[1].trim().toUpperCase() : null;
+                    if (!plate) continue;
+                    
+                    sheetVehicles.push({
+                        id: i,
+                        date: cells[0] ? cells[0].trim() : '',
+                        plate: plate,
+                        type: cells[2] ? cells[2].trim() : '',
+                        entryTime: cells[3] ? cells[3].trim() : '',
+                        exitTime: cells[4] ? cells[4].trim() : '',
+                        price: cells[5] ? parseFloat(cells[5]) : 0,
+                        paid: cells[6] ? cells[6].trim() === 'SÍ' : false,
+                        operator: cells[7] ? cells[7].trim() : ''
                     });
                 }
                 
@@ -651,9 +653,25 @@
             }
         }
 
-        // Actualizar UI con datos de Google Sheets
+        // Actualizar UI combinando datos locales + Google Sheets
         function updateUI() {
-            const combinedVehicles = [...vehicles, ...sheetVehicles.filter(sv => !vehicles.find(v => v.plate === sv.plate))];
+            // Combina datos locales con los de Google Sheets, evitando duplicados
+            const allPlates = new Set();
+            const combinedVehicles = [];
+            
+            // Primero agregar datos locales (tienen prioridad)
+            vehicles.forEach(v => {
+                allPlates.add(v.plate);
+                combinedVehicles.push(v);
+            });
+            
+            // Luego agregar datos de Sheets que no están en local
+            sheetVehicles.forEach(sv => {
+                if (!allPlates.has(sv.plate)) {
+                    combinedVehicles.push(sv);
+                }
+            });
+            
             const currentVehicles = combinedVehicles.filter(v => !v.exitTime);
             const departedVehicles = combinedVehicles.filter(v => v.exitTime);
 
@@ -792,7 +810,21 @@
 
         // Mostrar reporte diario
         function showDailyReport() {
-            const combinedVehicles = [...vehicles, ...sheetVehicles.filter(sv => !vehicles.find(v => v.plate === sv.plate))];
+            // Combinar datos locales + Sheets
+            const allPlates = new Set();
+            const combinedVehicles = [];
+            
+            vehicles.forEach(v => {
+                allPlates.add(v.plate);
+                combinedVehicles.push(v);
+            });
+            
+            sheetVehicles.forEach(sv => {
+                if (!allPlates.has(sv.plate)) {
+                    combinedVehicles.push(sv);
+                }
+            });
+            
             const departed = combinedVehicles.filter(v => v.exitTime);
             const staying = combinedVehicles.filter(v => !v.exitTime);
             const pendingUnpaid = staying.filter(v => !v.paid);
