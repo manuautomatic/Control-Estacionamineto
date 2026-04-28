@@ -596,39 +596,41 @@
             mensual: 100
         };
 
-        // Calcular deuda acumulada por días
+        // Calcular deuda acumulada por días (comparando fecha + hora)
         function calculateAccumulatedDebt(vehicle) {
             if (vehicle.type !== 'diario') return vehicle.price;
             
-            // Hora de corte: 11:30 PM
-            const cutoffHour = 23;
-            const cutoffMinute = 30;
-            
-            // Parsear fecha y hora de entrada
-            const entryParts = vehicle.entryTime.split(':');
-            const entryHour = parseInt(entryParts[0]);
-            const entryMinute = parseInt(entryParts[1]);
-            
             // Obtener fecha actual
             const now = new Date();
-            const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
             
-            // Calcular cuántas veces pasó las 11:30 PM
+            // Parsear hora de entrada (formato: HH:MM:SS)
+            const entryTimeParts = vehicle.entryTime.split(':');
+            const entryHour = parseInt(entryTimeParts[0]);
+            const entryMinute = parseInt(entryTimeParts[1]);
+            
+            // Crear fecha de entrada de hoy (asumimos que la entrada es de hoy)
+            const entryDate = new Date();
+            entryDate.setHours(entryHour, entryMinute, 0, 0);
+            
+            // Hora de corte: 23:30 (11:30 PM)
+            const cutoffTime = new Date();
+            cutoffTime.setHours(23, 30, 0, 0);
+            
+            // Contar cuántas veces pasó las 23:30
             let daysPassed = 0;
             
-            // Si entró antes de las 11:30 PM
-            if (entryHour < cutoffHour || (entryHour === cutoffHour && entryMinute < cutoffMinute)) {
-                // Ya pasó el primer corte hoy (primera acumulación)
+            // Si entró antes de las 23:30
+            if (entryDate < cutoffTime) {
+                // El corte de hoy ya pasó (primera acumulación)
                 daysPassed = 1;
                 
-                // Si ya pasó el corte hoy (estamos después de las 11:30 PM)
-                if (currentHour > cutoffHour || (currentHour === cutoffHour && currentMinute >= cutoffMinute)) {
+                // Si ahora ya pasamos las 23:30 de hoy, suma otro día
+                if (now >= cutoffTime) {
                     daysPassed += 1;
                 }
             } else {
-                // Entró después de las 11:30 PM, espera al siguiente corte
-                if (currentHour > cutoffHour || (currentHour === cutoffHour && currentMinute >= cutoffMinute)) {
+                // Entró después de las 23:30, espera al siguiente corte
+                if (now >= cutoffTime) {
                     daysPassed = 1;
                 }
             }
@@ -772,21 +774,24 @@
             // Diarios adentro que llevan más de 24 horas (PENDIENTES ADENTRO)
             const dailiesOverdue = currentVehicles.filter(v => {
                 if (v.type !== 'diario') return false;
-                const entryParts = v.entryTime.split(':');
-                const entryHour = parseInt(entryParts[0]);
-                const entryMinute = parseInt(entryParts[1]);
-                const cutoffHour = 23;
-                const cutoffMinute = 30;
-                const now = new Date();
-                const currentHour = now.getHours();
-                const currentMinute = now.getMinutes();
                 
-                if (entryHour < cutoffHour || (entryHour === cutoffHour && entryMinute < cutoffMinute)) {
+                const entryTimeParts = v.entryTime.split(':');
+                const entryHour = parseInt(entryTimeParts[0]);
+                const entryMinute = parseInt(entryTimeParts[1]);
+                
+                const entryDate = new Date();
+                entryDate.setHours(entryHour, entryMinute, 0, 0);
+                
+                const cutoffTime = new Date();
+                cutoffTime.setHours(23, 30, 0, 0);
+                
+                const now = new Date();
+                
+                // Si entró antes de las 23:30 y ahora ya pasamos las 23:30, está overdue
+                if (entryDate < cutoffTime && now >= cutoffTime) {
                     return true;
                 }
-                if (currentHour > cutoffHour || (currentHour === cutoffHour && currentMinute >= cutoffMinute)) {
-                    return true;
-                }
+                
                 return false;
             });
             
