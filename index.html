@@ -488,11 +488,22 @@
             </div>
         </div>
 
-        <!-- Vehículos que Salieron -->
-        <div class="card">
-            <h2>Vehículos que Salieron (<span id="countDeparted">0</span>)</h2>
-            <div class="vehicle-list" id="departedList">
+        <!-- Vehículos Pendientes de Pago -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="list-header">
+                <h2>Pendientes de Pago (<span id="countPending">0</span>)</h2>
+                <input type="text" class="search-box" id="searchPlate" placeholder="Buscar por placa...">
+            </div>
+            <div class="vehicle-list" id="pendingList">
                 <div class="empty-state">Cargando datos...</div>
+            </div>
+        </div>
+
+        <!-- Vehículos Pagados -->
+        <div class="card">
+            <h2>Vehículos Pagados (<span id="countPaid">0</span>)</h2>
+            <div class="vehicle-list" id="paidList">
+                <div class="empty-state">No hay vehículos pagados</div>
             </div>
         </div>
     </div>
@@ -689,9 +700,10 @@
             }
 
             document.getElementById('statInside').textContent = currentVehicles.length;
-            document.getElementById('statDeparted').textContent = departedVehicles.length;
+            document.getElementById('statDeparted').textContent = departedVehicles.filter(v => !v.paid).length;
             document.getElementById('countInside').textContent = currentVehicles.length;
-            document.getElementById('countDeparted').textContent = departedVehicles.length;
+            document.getElementById('countPending').textContent = departedVehicles.filter(v => !v.paid).length;
+            document.getElementById('countPaid').textContent = departedVehicles.filter(v => v.paid).length;
 
             // Actualizar lista de dentro
             const insideList = document.getElementById('insideList');
@@ -710,22 +722,42 @@
                 `).join('');
             }
 
-            // Actualizar lista de salidas
-            const departedList = document.getElementById('departedList');
-            if (departedVehicles.length === 0) {
-                departedList.innerHTML = '<div class="empty-state">No hay salidas registradas</div>';
+            // Actualizar lista de pendientes de pago
+            const pendingList = document.getElementById('pendingList');
+            const pendingVehicles = departedVehicles.filter(v => !v.paid);
+            
+            if (pendingVehicles.length === 0) {
+                pendingList.innerHTML = '<div class="empty-state">No hay vehículos pendientes de pago</div>';
             } else {
-                departedList.innerHTML = departedVehicles.map(v => `
-                    <div class="vehicle-item ${v.paid ? 'paid' : 'pending'}">
+                pendingList.innerHTML = pendingVehicles.map(v => `
+                    <div class="vehicle-item pending">
                         <div class="vehicle-info">
                             <div class="vehicle-plate">${v.plate}</div>
                             <div class="vehicle-detail">${v.entryTime} → ${v.exitTime}</div>
                         </div>
                         <div class="vehicle-price">S/ ${v.price.toFixed(2)}</div>
-                        <span class="vehicle-status ${v.paid ? 'status-paid' : 'status-pending'}">
-                            ${v.paid ? 'PAGADO' : 'PENDIENTE'}
-                        </span>
-                        ${!v.paid ? `<button class="btn-success" onclick="recordPayment(${v.id}, '${v.plate}')">Pagar</button>` : ''}
+                        <span class="vehicle-status status-pending">PENDIENTE</span>
+                        <button class="btn-success" onclick="recordPayment(${v.id}, '${v.plate}')">Marcar Pagado</button>
+                        <button class="btn-danger" onclick="deleteVehicle(${v.id}, '${v.plate}')">Eliminar</button>
+                    </div>
+                `).join('');
+            }
+
+            // Actualizar lista de pagados
+            const paidList = document.getElementById('paidList');
+            const paidVehicles = departedVehicles.filter(v => v.paid);
+            
+            if (paidVehicles.length === 0) {
+                paidList.innerHTML = '<div class="empty-state">No hay vehículos pagados</div>';
+            } else {
+                paidList.innerHTML = paidVehicles.map(v => `
+                    <div class="vehicle-item paid">
+                        <div class="vehicle-info">
+                            <div class="vehicle-plate">${v.plate}</div>
+                            <div class="vehicle-detail">${v.entryTime} → ${v.exitTime}</div>
+                        </div>
+                        <div class="vehicle-price">S/ ${v.price.toFixed(2)}</div>
+                        <span class="vehicle-status status-paid">PAGADO</span>
                         <button class="btn-danger" onclick="deleteVehicle(${v.id}, '${v.plate}')">Eliminar</button>
                     </div>
                 `).join('');
