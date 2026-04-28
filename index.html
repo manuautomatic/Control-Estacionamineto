@@ -538,7 +538,7 @@
         };
         
         // URL de Google Apps Script para sincronización
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6z5TKJuremCj88ZB2aOJ5qSSM1PMcjrMQylOpck-ECzOdJIC7vS9A7S3qSuwaF705tw/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxyZ6-djLbmVBqqGRgH5yamOWwpAoAjFlUKwZ_VYTiX-cFK-6MZ_44XAfQsVqJAiAHjAg/exec';
 
         let vehicles = [];
         
@@ -558,6 +558,22 @@
             if (saved) {
                 vehicles = JSON.parse(saved);
             }
+            loadFromGoogleSheets();
+        }
+
+        // Cargar datos de Google Apps Script
+        function loadFromGoogleSheets() {
+            fetch(GOOGLE_SCRIPT_URL)
+            .then(response => response.json())
+            .then(data => {
+                sheetVehicles = data;
+                updateUI();
+                updateSyncStatus(true);
+            })
+            .catch(error => {
+                console.error('Error loading from Google Sheets:', error);
+                updateSyncStatus(false);
+            });
         }
 
         // Guardar datos
