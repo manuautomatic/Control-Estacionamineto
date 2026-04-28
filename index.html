@@ -568,12 +568,15 @@
             .then(data => {
                 sheetVehicles = data;
                 updateUI();
-                updateSyncStatus(true);
             })
             .catch(error => {
                 console.error('Error loading from Google Sheets:', error);
-                updateSyncStatus(false);
             });
+        }
+
+        // Actualizar estado de sincronización
+        function updateSyncStatus(success) {
+            // Función auxiliar para mostrar estado (opcional)
         }
 
         // Guardar datos
