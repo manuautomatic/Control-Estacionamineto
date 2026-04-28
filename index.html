@@ -536,8 +536,21 @@
             semanal: 25,
             mensual: 100
         };
+        
+        // URL de Google Apps Script para sincronización
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSOELx2u3qAzIXAbqbcbZN5XqF63-GmjMhNvZqdzYEZXToWGyRvN8JwCqj2KcH2PdlXw/exec';
 
         let vehicles = [];
+        
+        // Función para sincronizar con Google Sheets
+        function syncToSheets(vehicleData) {
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(vehicleData)
+            })
+            .then(response => console.log('✓ Sincronizado con Google Sheets'))
+            .catch(error => console.error('Error al sincronizar:', error));
+        }
 
         // Cargar datos del localStorage
         function loadData() {
@@ -641,6 +654,19 @@
                 exitTime: null,
                 price: price,
                 paid: false,
+                operator: operator,
+                date: new Date().toLocaleDateString('es-ES')
+            });
+
+            // Sincronizar con Google Sheets
+            syncToSheets({
+                date: new Date().toLocaleDateString('es-ES'),
+                plate: plate,
+                type: parkingType,
+                entryTime: new Date().toLocaleTimeString('es-ES'),
+                exitTime: null,
+                price: price,
+                paid: false,
                 operator: operator
             });
 
@@ -660,6 +686,19 @@
             const vehicle = vehicles.find(v => v.id === id);
             if (vehicle) {
                 vehicle.exitTime = new Date().toLocaleTimeString('es-ES');
+                
+                // Sincronizar con Google Sheets
+                syncToSheets({
+                    date: vehicle.date,
+                    plate: vehicle.plate,
+                    type: vehicle.type,
+                    entryTime: vehicle.entryTime,
+                    exitTime: vehicle.exitTime,
+                    price: vehicle.price,
+                    paid: vehicle.paid,
+                    operator: vehicle.operator
+                });
+                
                 saveData();
                 updateUI();
             }
@@ -670,6 +709,19 @@
             const vehicle = vehicles.find(v => v.id === id);
             if (vehicle) {
                 vehicle.paid = true;
+                
+                // Sincronizar con Google Sheets
+                syncToSheets({
+                    date: vehicle.date,
+                    plate: vehicle.plate,
+                    type: vehicle.type,
+                    entryTime: vehicle.entryTime,
+                    exitTime: vehicle.exitTime,
+                    price: vehicle.price,
+                    paid: true,
+                    operator: vehicle.operator
+                });
+                
                 saveData();
                 updateUI();
             }
