@@ -562,24 +562,44 @@
             loadFromGoogleSheets();
         }
 
-        // Cargar datos de Google Apps Script
+        // Cargar datos de Google Sheets usando proxy CORS
         function loadFromGoogleSheets() {
-            // Agregar parámetro de caché para forzar lectura nueva
-            const url = GOOGLE_SCRIPT_URL + '?t=' + Date.now();
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+            const proxyUrl = `https://cors-anywhere.herokuapp.com/${csvUrl}`;
             
-            fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
+            fetch(proxyUrl)
+            .then(response => response.text())
             .then(data => {
-                if (Array.isArray(data)) {
-                    sheetVehicles = data;
-                    updateUI();
+                sheetVehicles = [];
+                const lines = data.split('\n');
+                
+                // Saltar encabezado
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const cells = lines[i].split(',');
+                    if (cells.length < 8) continue;
+                    
+                    const plate = cells[1] ? cells[1].trim().toUpperCase() : null;
+                    if (!plate) continue;
+                    
+                    sheetVehicles.push({
+                        id: i,
+                        date: cells[0] ? cells[0].trim() : '',
+                        plate: plate,
+                        type: cells[2] ? cells[2].trim() : '',
+                        entryTime: cells[3] ? cells[3].trim() : '',
+                        exitTime: cells[4] ? cells[4].trim() : '',
+                        price: cells[5] ? parseFloat(cells[5]) : 0,
+                        paid: cells[6] ? cells[6].trim() === 'SÍ' : false,
+                        operator: cells[7] ? cells[7].trim() : ''
+                    });
                 }
+                
+                updateUI();
             })
             .catch(error => {
-                console.error('Error loading from Google Apps Script:', error);
+                console.error('Error loading Google Sheets:', error);
             });
         }
 
